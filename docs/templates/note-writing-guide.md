@@ -29,7 +29,7 @@ src/content/resources/comp400727/qijianfei/01-第0节-绪论.md
 title: 第1章 绪论
 course: COMP400727
 type: notes
-author: 戚剑飞
+author: 王二
 updated: 2026-07-11
 order: 1
 ---
@@ -99,8 +99,6 @@ int main(void) {
 
 ## 6. 内容边界
 
-- 区分“可核实事实”和“个人经验”
-- 不写“必考”“原题”“押题”
 - 不放隐私、盗版、未授权课件和当前考试泄题内容
 
 如果不确定边界，请同时阅读：
