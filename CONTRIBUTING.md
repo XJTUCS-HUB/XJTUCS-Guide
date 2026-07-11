@@ -28,11 +28,13 @@ CI=true pnpm run build
 
 ## 新增课程资料
 
-1. 在 `src/content/resources/{课程代码}/` 新建 Markdown 文件。
+1. 在 `src/content/resources/{课程代码}/{贡献者目录}/` 新建 Markdown 文件。
 2. 复制 [课程资料模板](docs/templates/course-resource.md)。
 3. 填写课程代码、类型、作者或来源和更新时间。
 4. 正文只放自己原创或明确获得授权的内容。
 5. 图片优先使用稳定的 HTTPS 地址，不提交大体积附件。
+
+贡献者目录建议使用稳定的拼音或英文标识，例如 `qijianfei`。具体写法可参考 [笔记编写指南](docs/templates/note-writing-guide.md)。
 
 资料类型只能使用：`notes`、`lab`、`assessment`、`experience`、`past-paper`、`external`。
 
@@ -61,3 +63,10 @@ order: 10
 ```
 
 课程代码必须已经存在于 `src/content/courses/`。不确定代码、分类或学分时，请标记“待核对”，不要自行推断。
+
+## 笔记写法建议
+
+- 公式优先使用标准 LaTeX：`$...$`、`$$...$$`
+- 多行推导优先用 `aligned` 或相近环境
+- `$display`、`$PATH` 这类代码或命令名请使用反引号，不要裸写
+- 新增或整理笔记前，建议先看 [笔记编写指南](docs/templates/note-writing-guide.md)

@@ -56,6 +56,8 @@ const courseHref = course ? withBase(`/courses/${course.id}/`) : withBase('/cour
   .prose :global(p), .prose :global(li) { line-height: 1.85; }
   .prose :global(a) { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
   .prose :global(img) { max-width: 100%; height: auto; margin: 24px auto; }
+  .prose :global(.katex-display) { margin: 1.4em 0; overflow-x: auto; overflow-y: hidden; padding-bottom: 6px; }
+  .prose :global(.katex) { font-size: 1.02em; }
   .prose :global(pre) { max-width: 100%; overflow-x: auto; padding: 18px; border: 1px solid var(--line); background: var(--ink); color: var(--paper); font-size: .84rem; }
   .prose :global(code) { font-family: var(--mono); }
   .prose :global(:not(pre) > code) { padding: 2px 4px; background: var(--brand-soft); }

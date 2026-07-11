@@ -23,7 +23,7 @@ CI=true pnpm run build
 
 ```text
 src/content/courses/       课程基本信息
-src/content/resources/     笔记、实验、考核与学习体验
+src/content/resources/     笔记、实验、考核与学习体验（按课程 / 贡献者组织）
 docs/templates/            投稿示例与 Markdown 模板
 docs/plan/                 已审批的产品与治理计划
 ```

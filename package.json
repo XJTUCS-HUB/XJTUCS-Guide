@@ -11,6 +11,9 @@
     "check": "pnpm run build"
   },
   "dependencies": {
-    "astro": "^5.12.3"
+    "astro": "^5.12.3",
+    "katex": "^0.16.11",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   }
 }

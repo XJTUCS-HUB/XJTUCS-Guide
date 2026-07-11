@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const vault = '/Users/finlenco/Documents/Personal/Obisidian/MyVault';
 const output = new URL('../src/content/resources/', import.meta.url);
+const contributor = { name: '戚剑飞', slug: 'qijianfei' };
 const groups = [
   { directory: '计算机系统导论', course: 'COMP400727', slug: 'comp400727' },
   { directory: '数据结构与算法', course: 'COMP400505', slug: 'comp400505' },
@@ -17,7 +18,7 @@ for (const group of groups) {
   const files = (await readdir(directory)).filter((name) => name.endsWith('.md')).sort(collator.compare);
   files.forEach((filename, index) => {
     const title = filename.replace(/\.md$/, '');
-    records.push({ ...group, directory, filename, title, id: `${String(index + 1).padStart(2, '0')}-${toSlug(title)}`, order: index + 1 });
+    records.push({ ...group, contributor, directory, filename, title, id: `${String(index + 1).padStart(2, '0')}-${toSlug(title)}`, order: index + 1 });
   });
 }
 
@@ -38,15 +39,15 @@ for (const record of records) {
     `title: ${JSON.stringify(record.title)}`,
     `course: ${record.course}`,
     'type: notes',
-    'author: 戚剑飞',
+    `author: ${contributor.name}`,
     `updated: ${info.mtime.toISOString().slice(0, 10)}`,
     `order: ${record.order}`,
     '---',
     '',
   ].join('\n');
 
-  const destination = new URL(`./${record.slug}/${record.id}.md`, output);
-  await mkdir(new URL(`./${record.slug}/`, output), { recursive: true });
+  const destination = new URL(`./${record.slug}/${record.contributor.slug}/${record.id}.md`, output);
+  await mkdir(new URL(`./${record.slug}/${record.contributor.slug}/`, output), { recursive: true });
   await writeFile(destination, frontmatter + body.trimStart() + '\n');
 }
 
@@ -80,7 +81,10 @@ function rewriteMarkdownLinks(value, current) {
 
 function resourceUrl(current, record, anchor = '') {
   const hash = anchor ? `#${encodeURI(anchor)}` : '';
-  const href = current.slug === record.slug ? `../${record.id}/` : `../../${record.slug}/${record.id}/`;
+  const currentPath = `/resources/${current.slug}/${current.contributor.slug}/${current.id}/`;
+  const targetPath = `/resources/${record.slug}/${record.contributor.slug}/${record.id}/`;
+  const fromDir = path.posix.dirname(currentPath);
+  const href = path.posix.relative(fromDir, targetPath) || './';
   return `${href}${hash}`;
 }
 
