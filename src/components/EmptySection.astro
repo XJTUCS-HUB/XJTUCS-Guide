@@ -1,0 +1,16 @@
+---
+interface Props { title: string; description: string; }
+const { title, description } = Astro.props;
+---
+<section class="empty-section">
+  <div><h2>{title}</h2><p>{description}</p></div>
+  <span>暂无内容</span>
+</section>
+
+<style>
+  .empty-section { display: flex; justify-content: space-between; gap: 24px; padding: 28px 0; border-top: 1px solid var(--line); }
+  h2 { margin: 0 0 4px; font-family: var(--serif); font-size: 1.55rem; font-weight: 500; }
+  p { max-width: 620px; margin: 0; color: var(--muted); font-size: .9rem; }
+  span { flex: 0 0 auto; align-self: center; color: var(--faint); font-size: .78rem; }
+  @media (max-width: 560px) { .empty-section { display: block; } span { display: block; margin-top: 12px; } }
+</style>

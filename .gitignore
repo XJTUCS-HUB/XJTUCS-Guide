@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+.pnpm-store/
+.DS_Store
+.playwright-mcp/
+*-desktop.png
+*-mobile.png
+docs/plan/

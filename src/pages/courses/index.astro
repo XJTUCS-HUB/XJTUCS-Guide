@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CourseRow from '../../components/CourseRow.astro';
+import { withBase } from '../../lib/paths';
+
+const groups = [
+  ['专业基础', 'required-foundation', 'required', [['COMP250105','离散数学 A','4'],['COMP300205','程序设计基础','3'],['COMP400505','数据结构与算法 I','4'],['EELC400105','数字逻辑电路 I','3.5']]],
+  ['专业核心', 'required-core', 'required', [['COMP450105','计算机组成','4'],['COMP450205','操作系统原理 I','3'],['COMP450305','形式语言与编译','3.5'],['COMP450505','计算机网络原理','3'],['COMP462105','数据库系统','2.5'],['COMP462205','算法分析与设计','2.5'],['COMP561705','软件工程','2']]],
+  ['专业选修', 'elective', 'elective', [['COMP400727','计算机系统导论','4']]],
+];
+const courseHref = (code) => withBase(`/courses/${code.toLowerCase()}/`);
+---
+<BaseLayout title="课程目录 · XJTUCS Guide">
+  <div class="container catalog-layout">
+    <aside class="catalog-nav"><p class="eyebrow">课程目录</p><a class="active" href="#required-foundation" data-nav-link>专业基础</a><a href="#required-core" data-nav-link>专业核心</a><a href="#elective" data-nav-link>专业选修</a><hr /><small>按培养方案分类，不按学期组织</small></aside>
+    <section>
+      <div class="page-head"><p class="eyebrow">Course catalog</p><h1 class="serif">课程</h1><p>先选择课程，再查看对应的资料、实验经验与学习体验。</p></div>
+      <div class="catalog-search"><label for="course-type">课程类型</label><select id="course-type" aria-label="课程类型"><option value="all">全部类型</option><option value="required">专业必修</option><option value="elective">专业选修</option></select></div>
+      {groups.map(([title, id, requirement, items]) => <section class="group" id={id} data-course-group><div class="group-title"><h2 class="serif">{title}</h2><span data-count>{items.length} 门</span></div>{items.map(([code,name,credits]) => <CourseRow code={code} name={name} credits={credits} category={title} requirement={requirement} href={courseHref(code)} />)}</section>)}
+      <p class="no-results" hidden>没有匹配的课程，请尝试其他名称、代码或类型。</p>
+    </section>
+  </div>
+</BaseLayout>
+<style>
+  .catalog-layout { display: grid; grid-template-columns: 190px 1fr; gap: 64px; padding-block: 64px 100px; }
+  .catalog-nav { position: sticky; top: 96px; height: fit-content; display: grid; gap: 4px; }
+  .catalog-nav a { min-height: 40px; display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-left: 2px solid transparent; }
+  .catalog-nav a.active { color: var(--ink); border-color: var(--brand); background: var(--brand-soft); }
+  .catalog-nav hr { width: 100%; border: 0; border-top: 1px solid var(--line); }
+  .catalog-nav small { color: var(--muted); }
+  .page-head { padding-bottom: 36px; }
+  h1 { margin: 4px 0 10px; font-size: 5rem; line-height: 1; font-weight: 500; }
+  .page-head p:last-child { color: var(--muted); }
+  .catalog-search { min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 14px; border: 1px solid var(--line-strong); background: var(--surface); }
+  .catalog-search label { color: var(--muted); font-size: .8rem; }
+  .catalog-search select { height: 42px; border: 0; outline: 0; background: transparent; color: var(--ink); }
+  .group { padding-top: 54px; }
+  .group-title { display: flex; align-items: end; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+  .group-title h2 { margin: 0; font-size: 1.8rem; font-weight: 500; }
+  .group-title span { color: var(--muted); font-size: .78rem; }
+  .no-results { margin: 54px 0 0; padding: 28px 0; border-block: 1px solid var(--line); color: var(--muted); }
+  @media (max-width: 760px) { .catalog-layout { grid-template-columns: 1fr; gap: 20px; padding-top: 40px; } .catalog-nav { position: static; display: flex; overflow-x: auto; } .catalog-nav .eyebrow, .catalog-nav hr, .catalog-nav small { display: none; } .catalog-nav a { white-space: nowrap; border-left: 0; border-bottom: 2px solid transparent; } h1 { font-size: 3.5rem; } }
+</style>
+
+<script>
+  const type = document.querySelector<HTMLSelectElement>('#course-type');
+  const rows = [...document.querySelectorAll<HTMLElement>('[data-course-row]')];
+  const groups = [...document.querySelectorAll<HTMLElement>('[data-course-group]')];
+  const empty = document.querySelector<HTMLElement>('.no-results');
+  const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
+
+  const syncNav = () => {
+    const hashTarget = window.location.hash.replace('#', '');
+    const firstVisibleGroup = groups.find((group) => !group.hidden);
+    const activeId = groups.some((group) => group.id === hashTarget && !group.hidden) ? hashTarget : firstVisibleGroup?.id;
+    navLinks.forEach((link) => {
+      const targetId = link.getAttribute('href')?.replace('#', '');
+      link.classList.toggle('active', Boolean(targetId && activeId === targetId));
+      if (targetId) link.hidden = !groups.some((group) => group.id === targetId && !group.hidden);
+    });
+  };
+
+  const filterCourses = () => {
+    const requirement = type?.value ?? 'all';
+    rows.forEach((row) => {
+      row.hidden = !(requirement === 'all' || row.dataset.requirement === requirement);
+    });
+    let visibleTotal = 0;
+    groups.forEach((group) => {
+      const visible = [...group.querySelectorAll<HTMLElement>('[data-course-row]')].filter((row) => !row.hidden).length;
+      group.hidden = visible === 0;
+      const count = group.querySelector<HTMLElement>('[data-count]');
+      if (count) count.textContent = `${visible} 门`;
+      visibleTotal += visible;
+    });
+    if (empty) empty.hidden = visibleTotal !== 0;
+    syncNav();
+  };
+  type?.addEventListener('change', filterCourses);
+  window.addEventListener('hashchange', syncNav);
+  filterCourses();
+</script>

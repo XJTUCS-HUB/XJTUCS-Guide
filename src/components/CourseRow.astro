@@ -1,0 +1,28 @@
+---
+const { code, name, credits, category, requirement = '', href } = Astro.props;
+---
+{href ? (
+  <a class="course-row" href={href} data-course-row data-category={category} data-requirement={requirement}>
+    <span class="course-code">{code}</span><span class="course-name">{name}</span><span class="course-category">{category}</span><span class="course-credits">{credits === '待核对' ? credits : `${credits} 学分`}</span><span class="arrow" aria-hidden="true">→</span>
+  </a>
+) : (
+  <div class="course-row unavailable" data-course-row data-category={category} data-requirement={requirement}>
+    <span class="course-code">{code}</span><span class="course-name">{name}</span><span class="course-category">{category}</span><span class="course-credits">{credits === '待核对' ? credits : `${credits} 学分`}</span><span class="arrow">待补充</span>
+  </div>
+)}
+
+<style>
+  .course-row { min-height: 62px; display: grid; grid-template-columns: 130px minmax(180px, 1.35fr) minmax(150px, 1fr) 70px 24px; gap: 16px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--line); transition: background 150ms var(--ease), padding-left 150ms var(--ease); }
+  .course-row:hover { padding-left: 18px; background: var(--surface); }
+  .course-row.unavailable { color: var(--muted); }
+  .course-row.unavailable:hover { padding-left: 14px; background: transparent; }
+  .course-code { color: var(--muted); font-family: var(--mono); font-size: .74rem; }
+  .course-name { font-family: var(--serif); font-size: 1.05rem; font-weight: 600; }
+  .course-category, .course-credits { color: var(--muted); font-size: .78rem; }
+  .course-credits { text-align: right; }
+  .arrow { color: var(--brand); font-size: .76rem; white-space: nowrap; }
+  :global(html[data-variant="reading"]) .course-row { min-height: 74px; grid-template-columns: 130px 1fr 90px 24px; }
+  :global(html[data-variant="reading"]) .course-category { display: none; }
+  :global(html[data-variant="notes"]) .course-row { margin-bottom: 8px; border: 1px solid var(--line); background: var(--surface); }
+  @media (max-width: 720px) { .course-row { min-height: 76px; grid-template-columns: 1fr auto; gap: 2px 12px; } .course-code { grid-column: 1; } .course-name { grid-column: 1; } .course-category { grid-column: 1; } .course-credits { grid-column: 2; grid-row: 1 / 4; } .arrow { display: none; } }
+</style>

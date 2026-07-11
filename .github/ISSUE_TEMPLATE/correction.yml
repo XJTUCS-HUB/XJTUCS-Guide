@@ -1,0 +1,32 @@
+name: 纠正事实、错字或失效链接
+description: 报告普通内容问题；敏感事项不要使用公开 Issue
+title: "[纠错] "
+labels: ["correction"]
+body:
+  - type: markdown
+    attributes:
+      value: 隐私、版权、名誉、安全和当前考试泄题问题不要在这里公开，请阅读 TAKEDOWN.md。
+  - type: input
+    id: page
+    attributes:
+      label: 页面 URL
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: 问题类型
+      options: [事实错误, 错字或格式, 失效链接, 内容过时, 其他普通问题]
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题说明
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 建议修改与依据
+      description: 事实纠错请尽量提供可靠来源。

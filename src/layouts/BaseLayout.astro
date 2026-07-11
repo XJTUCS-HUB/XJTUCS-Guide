@@ -1,0 +1,83 @@
+---
+import '../styles/global.css';
+import { withBase } from '../lib/paths';
+const { title = 'XJTUCS Guide', description = '西安交通大学计算机专业非官方课程资料站' } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <div class="brand">
+          <a class="brand-mark" href="https://github.com/XJTUCS-HUB/XJTUCS-Guide" aria-label="在 GitHub 查看 XJTUCS Guide">GH</a>
+          <a href={withBase('/')} aria-label="XJTUCS Guide 首页">
+          <span><strong>XJTUCS</strong><small>Guide</small></span>
+          </a>
+        </div>
+        <nav aria-label="主导航">
+          <a href={withBase('/courses/')}>课程</a>
+          <a href={withBase('/recommendation/')}>推免经验</a>
+          <a href={withBase('/contribute/')}>贡献</a>
+          <a href={withBase('/about/')}>关于</a>
+        </nav>
+      </div>
+    </header>
+    <main><slot /></main>
+    <footer>
+      <div class="container footer-inner">
+        <p><strong>XJTUCS Guide</strong><br /><span>由西安交通大学计算机专业学生维护的非官方资料站</span></p>
+        <p><a href="https://github.com/XJTUCS-HUB/XJTUCS-Guide">GitHub</a> · <a href={withBase('/contribute/')}>参与贡献</a></p>
+      </div>
+    </footer>
+    <button class="tweaks-toggle" type="button" data-tweaks-toggle aria-expanded="false">Aa</button>
+    <aside class="tweaks" data-tweaks hidden aria-label="视觉样本切换">
+      <div><strong>Tweaks</strong><button type="button" data-tweaks-close aria-label="关闭">×</button></div>
+      <label>视觉方向
+        <select data-density>
+          <option value="catalog">B · 课程目录型</option>
+          <option value="reading">A · 文档阅读型</option>
+          <option value="notes">C · 笔记索引型</option>
+        </select>
+      </label>
+    </aside>
+    <script>
+      const panel = document.querySelector('[data-tweaks]');
+      const toggle = document.querySelector('[data-tweaks-toggle]');
+      const setPanel = (open) => { if (panel instanceof HTMLElement) panel.hidden = !open; toggle?.setAttribute('aria-expanded', String(open)); };
+      toggle?.addEventListener('click', () => setPanel(panel?.hasAttribute('hidden') ?? true));
+      document.querySelector('[data-tweaks-close]')?.addEventListener('click', () => setPanel(false));
+      document.querySelector('[data-density]')?.addEventListener('change', (event) => { if (event.target instanceof HTMLSelectElement) document.documentElement.dataset.variant = event.target.value; });
+    </script>
+  </body>
+</html>
+
+<style>
+  .site-header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 92%, transparent); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+  .nav-wrap { min-height: 64px; display: flex; align-items: center; gap: 32px; }
+  .brand { display: flex; align-items: center; gap: 10px; line-height: 1; }
+  .brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--brand); color: var(--brand); font-family: var(--serif); font-size: .76rem; font-weight: 700; transition: background 160ms var(--ease), color 160ms var(--ease); }
+  .brand-mark:hover { background: var(--brand); color: var(--surface); }
+  .brand strong { display: block; font-family: var(--serif); font-size: 1rem; font-weight: 600; }
+  .brand small { color: var(--muted); font-size: .68rem; }
+  nav { display: flex; gap: 4px; margin-left: auto; }
+  nav a { min-height: 44px; display: grid; place-items: center; padding: 0 14px; color: var(--muted); font-size: .9rem; border-bottom: 2px solid transparent; transition: color 160ms var(--ease), border-color 160ms var(--ease); }
+  nav a:hover { color: var(--ink); border-color: var(--brand); }
+  footer { margin-top: 80px; border-top: 1px solid var(--line); }
+  .footer-inner { min-height: 160px; display: flex; justify-content: space-between; gap: 24px; align-items: center; font-size: .86rem; }
+  .footer-inner span { color: var(--muted); }
+  .footer-inner a { color: var(--link); }
+  .tweaks-toggle { position: fixed; right: 18px; bottom: 18px; z-index: 30; width: 44px; height: 44px; border: 1px solid var(--ink); border-radius: 50%; background: var(--ink); color: var(--paper); font-family: var(--serif); cursor: pointer; }
+  .tweaks { position: fixed; right: 18px; bottom: 70px; z-index: 30; width: 250px; padding: 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); box-shadow: 0 18px 48px rgb(23 23 21 / .16); font-size: .82rem; }
+  .tweaks > div { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .tweaks button { border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 1.2rem; }
+  .tweaks label { display: grid; gap: 5px; color: var(--muted); }
+  .tweaks select { height: 38px; padding: 0 8px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--paper); color: var(--ink); }
+  .tweaks .check { display: flex; align-items: center; margin-top: 12px; }
+  @media (max-width: 760px) { nav a:not(:first-child) { display: none; } .nav-wrap { gap: 10px; } .footer-inner { align-items: flex-start; flex-direction: column; justify-content: center; } }
+</style>

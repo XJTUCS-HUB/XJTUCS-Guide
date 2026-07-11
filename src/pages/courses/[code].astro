@@ -1,0 +1,74 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptySection from '../../components/EmptySection.astro';
+import { withBase } from '../../lib/paths';
+
+export async function getStaticPaths() {
+  const courses = await getCollection('courses');
+  return courses.map((course) => ({ params: { code: course.id }, props: { course } }));
+}
+
+const { course } = Astro.props;
+const resources = (await getCollection('resources', ({ data }) => data.course === course.data.code))
+  .sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title, 'zh-CN'));
+const notes = resources.filter(({ data }) => data.type === 'notes');
+const credits = course.data.credits ? `${course.data.credits} 学分` : '学分待核对';
+---
+<BaseLayout title={`${course.data.name} | XJTUCS Guide`}>
+  <div class="container course-shell">
+    <nav class="breadcrumb" aria-label="面包屑"><a href={withBase('/courses/')}>课程</a><span>/</span><span>{course.data.name}</span></nav>
+    <header class="course-head">
+      <p class="eyebrow">{course.data.code}</p>
+      <h1 class="serif">{course.data.name}</h1>
+      <p>{course.data.summary}</p>
+      <dl>
+        <div><dt>类别</dt><dd>{course.data.category}</dd></div>
+        <div><dt>性质</dt><dd>{course.data.requirement === 'required' ? '专业必修' : '专业选修'}</dd></div>
+        <div><dt>学分</dt><dd>{credits}</dd></div>
+      </dl>
+    </header>
+
+    <main class="course-content">
+      <EmptySection title="课程介绍与学习目标" description="课程覆盖范围、学习目标和内容边界将在核对后补充。" />
+      <EmptySection title="先修建议与相关课程" description="建议具备的知识基础和后续课程关系将在核对后补充。" />
+      <section class="resource-section">
+        <div class="section-title"><div><p class="eyebrow">Notes & review</p><h2>笔记与复习</h2></div><span>{notes.length} 篇</span></div>
+        {notes.length ? <ol>{notes.map((entry) => <li><a href={withBase(`/resources/${entry.id}/`)}><span>{entry.data.title}</span><small>戚剑飞 · {entry.data.updated.toLocaleDateString('zh-CN')}</small></a></li>)}</ol> : <p class="empty">暂无内容</p>}
+      </section>
+      <EmptySection title="实验经验" description="环境配置、调试方法、常见问题和实验复盘。" />
+      <EmptySection title="考核信息" description="经核实的作业、实验和考核形式信息。" />
+      <EmptySection title="学习体验" description="带有适用学期与课程背景的个人学习记录。" />
+      <EmptySection title="往年资料" description="允许公开且来源清楚的回忆内容或原始链接。" />
+      <EmptySection title="外部资源" description="教材、公开课、课程团队网站和相关仓库。" />
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .course-shell { max-width: 980px; padding-block: 34px 100px; }
+  .breadcrumb { display: flex; gap: 10px; color: var(--muted); font-size: .8rem; }
+  .breadcrumb a { color: var(--link); }
+  .course-head { padding: 70px 0 54px; border-bottom: 1px solid var(--ink); }
+  h1 { margin: 8px 0 14px; font-size: 5.2rem; font-weight: 500; line-height: 1; }
+  .course-head > p:not(.eyebrow) { max-width: 650px; color: var(--muted); }
+  dl { display: grid; grid-template-columns: repeat(3, 1fr); margin: 34px 0 0; }
+  dl div { padding-right: 20px; border-right: 1px solid var(--line); }
+  dl div + div { padding-left: 20px; }
+  dl div:last-child { border: 0; }
+  dt { color: var(--muted); font-size: .72rem; }
+  dd { margin: 2px 0 0; font-weight: 600; }
+  .course-content { display: block; padding-top: 34px; }
+  .resource-section { padding: 54px 0; border-top: 1px solid var(--ink); }
+  .section-title { display: flex; justify-content: space-between; align-items: end; margin-bottom: 24px; }
+  .section-title h2 { margin: 3px 0 0; font-family: var(--serif); font-size: 2.2rem; font-weight: 500; }
+  .section-title > span { color: var(--muted); font-size: .8rem; }
+  ol { margin: 0; padding: 0; list-style: none; }
+  li { border-top: 1px solid var(--line); }
+  li:last-child { border-bottom: 1px solid var(--line); }
+  li a { min-height: 62px; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 10px 12px; transition: background 150ms var(--ease); }
+  li a:hover { background: var(--brand-soft); }
+  li small { flex: 0 0 auto; color: var(--muted); }
+  .empty { color: var(--faint); }
+  @media (max-width: 680px) { h1 { font-size: 3.4rem; } .course-head { padding-block: 48px 38px; } dl { grid-template-columns: 1fr 1fr; gap: 18px 0; } dl div:nth-child(2) { border: 0; } dl div:nth-child(3) { padding-left: 0; } li a { display: block; } li small { display: block; margin-top: 3px; } }
+</style>

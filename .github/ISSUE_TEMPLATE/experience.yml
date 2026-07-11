@@ -1,0 +1,47 @@
+name: 投稿学习体验或推免经验
+description: 分享课程学习过程或本人推免经历
+title: "[经验投稿] "
+labels: ["experience"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: 投稿类型
+      options: [课程学习体验, 推免经验]
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: 标题
+    validations:
+      required: true
+  - type: input
+    id: author
+    attributes:
+      label: 展示名
+      description: 真名、网名或匿名均可。
+    validations:
+      required: true
+  - type: input
+    id: scope
+    attributes:
+      label: 课程与学期，或推免届次
+    validations:
+      required: true
+  - type: textarea
+    id: content
+    attributes:
+      label: 正文
+      description: 请区分事实和个人感受；政策信息请注明年份并链接官方来源。
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: 提交确认
+      options:
+        - label: 内容不包含评分、排名、他人名单、联系方式、成绩材料或未经授权的个人信息。
+          required: true
+        - label: 我同意原创内容按 CC BY 4.0 展示。
+          required: true

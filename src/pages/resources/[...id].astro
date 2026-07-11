@@ -1,0 +1,67 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/paths';
+
+export async function getStaticPaths() {
+  const resources = await getCollection('resources');
+  return resources.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const course = (await getCollection('courses')).find(({ data }) => data.code === entry.data.course);
+const courseHref = course ? withBase(`/courses/${course.id}/`) : withBase('/courses/');
+---
+<BaseLayout title={`${entry.data.title} | XJTUCS Guide`}>
+  <div class="container article-layout">
+    <aside class="toc">
+      <p class="eyebrow">本页目录</p>
+      {headings.filter(({ depth }) => depth <= 2).slice(0, 12).map((heading) => <a href={`#${heading.slug}`}>{heading.text}</a>)}
+    </aside>
+    <article>
+      <nav class="breadcrumb" aria-label="面包屑"><a href={courseHref}>{course?.data.name ?? entry.data.course}</a><span>/</span><span>笔记</span></nav>
+      <header>
+        <p class="eyebrow">{entry.data.course} · Notes</p>
+        <h1 class="serif">{entry.data.title}</h1>
+        <dl><div><dt>作者</dt><dd>{entry.data.author}</dd></div><div><dt>更新时间</dt><dd>{entry.data.updated.toLocaleDateString('zh-CN')}</dd></div></dl>
+      </header>
+      <div class="prose"><Content /></div>
+    </article>
+    <aside class="meta"><p class="eyebrow">页面信息</p><p>发现内容有误或已经过时？</p><a href="https://github.com/XJTUCS-HUB/XJTUCS-Guide/issues">报告问题</a><hr /><small>本站为学生维护的非官方资料站。</small></aside>
+  </div>
+</BaseLayout>
+
+<style>
+  .article-layout { display: grid; grid-template-columns: 170px minmax(0, 720px) 170px; justify-content: space-between; gap: 44px; padding-block: 42px 110px; }
+  .toc, .meta { position: sticky; top: 94px; align-self: start; display: grid; gap: 4px; font-size: .78rem; }
+  .toc a { padding: 5px 8px; border-left: 2px solid var(--line); color: var(--muted); }
+  .toc a:hover { border-color: var(--brand); color: var(--ink); }
+  .meta p { margin: 0 0 4px; color: var(--muted); }
+  .meta a { color: var(--link); }
+  .meta hr { width: 100%; border: 0; border-top: 1px solid var(--line); }
+  .meta small { color: var(--muted); }
+  .breadcrumb { display: flex; gap: 8px; color: var(--muted); font-size: .78rem; }
+  .breadcrumb a { color: var(--link); }
+  article > header { padding: 44px 0 36px; border-bottom: 1px solid var(--ink); }
+  h1 { margin: 7px 0 28px; font-size: 4rem; font-weight: 500; line-height: 1.05; text-wrap: balance; }
+  dl { display: flex; gap: 42px; margin: 0; }
+  dt { color: var(--muted); font-size: .7rem; }
+  dd { margin: 1px 0 0; font-size: .9rem; }
+  .prose { padding-top: 42px; overflow-wrap: anywhere; }
+  .prose :global(h1), .prose :global(h2), .prose :global(h3), .prose :global(h4) { scroll-margin-top: 90px; font-family: var(--serif); font-weight: 500; line-height: 1.25; }
+  .prose :global(h1) { margin: 2.4em 0 .7em; font-size: 2.25rem; }
+  .prose :global(h2) { margin: 2.1em 0 .65em; font-size: 1.8rem; }
+  .prose :global(h3) { margin: 1.8em 0 .55em; font-size: 1.35rem; }
+  .prose :global(p), .prose :global(li) { line-height: 1.85; }
+  .prose :global(a) { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+  .prose :global(img) { max-width: 100%; height: auto; margin: 24px auto; }
+  .prose :global(pre) { max-width: 100%; overflow-x: auto; padding: 18px; border: 1px solid var(--line); background: var(--ink); color: var(--paper); font-size: .84rem; }
+  .prose :global(code) { font-family: var(--mono); }
+  .prose :global(:not(pre) > code) { padding: 2px 4px; background: var(--brand-soft); }
+  .prose :global(table) { display: block; width: 100%; overflow-x: auto; border-collapse: collapse; }
+  .prose :global(th), .prose :global(td) { padding: 8px 10px; border: 1px solid var(--line); text-align: left; }
+  .prose :global(blockquote) { margin-inline: 0; padding: 8px 18px; border-left: 3px solid var(--brand); color: var(--muted); }
+  @media (max-width: 1050px) { .article-layout { grid-template-columns: minmax(0, 720px) 170px; justify-content: center; } .toc { display: none; } }
+  @media (max-width: 760px) { .article-layout { grid-template-columns: 1fr; padding-top: 24px; } .meta { position: static; padding-top: 24px; border-top: 1px solid var(--line); } h1 { font-size: 2.8rem; } .prose { padding-top: 28px; } }
+</style>

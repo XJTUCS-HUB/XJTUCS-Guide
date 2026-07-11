@@ -1,0 +1,16 @@
+{
+  "name": "xjtucs-guide",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.5.1",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "pnpm run build"
+  },
+  "dependencies": {
+    "astro": "^5.12.3"
+  }
+}
