@@ -14,7 +14,7 @@ const courseHref = (code) => withBase(`/courses/${code.toLowerCase()}/`);
   <div class="container catalog-layout">
     <aside class="catalog-nav"><p class="eyebrow">课程目录</p><a class="active" href="#required-foundation" data-nav-link>专业基础</a><a href="#required-core" data-nav-link>专业核心</a><a href="#elective" data-nav-link>专业选修</a><hr /><small>按培养方案分类，不按学期组织</small></aside>
     <section>
-      <div class="page-head"><p class="eyebrow">Course catalog</p><h1 class="serif">课程</h1><p>先选择课程，再查看对应的资料、实验经验与学习体验。</p></div>
+      <div class="page-head"><p class="eyebrow">Course catalog</p><h1 class="serif">课程</h1><p>先选择课程，再查看对应的资料与学习体验。</p></div>
       <div class="catalog-search"><label for="course-type">课程类型</label><select id="course-type" aria-label="课程类型"><option value="all">全部类型</option><option value="required">专业必修</option><option value="elective">专业选修</option></select></div>
       {groups.map(([title, id, requirement, items]) => <section class="group" id={id} data-course-group><div class="group-title"><h2 class="serif">{title}</h2><span data-count>{items.length} 门</span></div>{items.map(([code,name,credits]) => <CourseRow code={code} name={name} credits={credits} category={title} requirement={requirement} href={courseHref(code)} />)}</section>)}
       <p class="no-results" hidden>没有匹配的课程，请尝试其他名称、代码或类型。</p>
