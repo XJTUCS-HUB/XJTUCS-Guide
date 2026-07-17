@@ -16,7 +16,7 @@ const { title = 'XJTUCS Guide', description = '西安交通大学计算机专业
     <header class="site-header">
       <div class="container nav-wrap">
         <div class="brand">
-          <a class="brand-mark" href="https://github.com/XJTUCS-HUB/XJTUCS-Guide" aria-label="在 GitHub 查看 XJTUCS Guide">GH</a>
+          <a class="brand-mark" href="https://github.com/XJTUCS-HUB/XJTUCS-Guide" aria-label="在 GitHub 查看 XJTUCS Guide"><svg viewBox="0 0 16 16" width="28" height="28" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
           <a href={withBase('/')} aria-label="XJTUCS Guide 首页">
           <span><strong>XJTUCS</strong><small>Guide</small></span>
           </a>
@@ -62,8 +62,8 @@ const { title = 'XJTUCS Guide', description = '西安交通大学计算机专业
   .site-header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 92%, transparent); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
   .nav-wrap { min-height: 64px; display: flex; align-items: center; gap: 32px; }
   .brand { display: flex; align-items: center; gap: 10px; line-height: 1; }
-  .brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--brand); color: var(--brand); font-family: var(--serif); font-size: .76rem; font-weight: 700; transition: background 160ms var(--ease), color 160ms var(--ease); }
-  .brand-mark:hover { background: var(--brand); color: var(--surface); }
+  .brand-mark { display: grid; place-items: center; width: 32px; height: 32px; color: var(--ink); transition: color 160ms var(--ease); }
+  .brand-mark:hover { color: var(--brand); }
   .brand strong { display: block; font-family: var(--serif); font-size: 1rem; font-weight: 600; }
   .brand small { color: var(--muted); font-size: .68rem; }
   nav { display: flex; gap: 4px; margin-left: auto; }

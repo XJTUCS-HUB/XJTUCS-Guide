@@ -4,6 +4,8 @@
 
 项目不代表学校、学院或课程团队。
 
+## 该项目的初衷
+
 ## 本地运行
 
 需要 Node.js 和 pnpm。
@@ -23,9 +25,8 @@ CI=true pnpm run build
 
 ```text
 src/content/courses/       课程基本信息
-src/content/resources/     笔记、实验、考核与学习体验（按课程 / 贡献者组织）
+src/content/resources/     笔记、考核与学习体验（按课程 / 贡献者组织）
 docs/templates/            投稿示例与 Markdown 模板
-docs/plan/                 已审批的产品与治理计划
 ```
 
 课程和资料由 Astro Content Collections 校验。内容的必要字段见 [CONTRIBUTING.md](CONTRIBUTING.md)。
@@ -44,4 +45,4 @@ docs/plan/                 已审批的产品与治理计划
 
 ## 许可证
 
-网站代码采用 [MIT License](LICENSE)。投稿人原创内容默认采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.zh-hans)，页面另有说明时除外。
+网站代码采用 [MIT License](LICENSE)。投稿人原创内容默认采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.zh-hans)。
