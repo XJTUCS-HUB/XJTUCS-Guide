@@ -4,6 +4,8 @@
 
 项目不代表学校、学院或课程团队。
 
+课程 PPT 请前往附属仓库：[XJTUCS Course PPT](https://github.com/XJTUCS-HUB/Course_PPT)。
+
 ## 该项目的初衷
 
 ## 本地运行
