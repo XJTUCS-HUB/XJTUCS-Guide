@@ -4,6 +4,8 @@
 
 > 目前已更新 ICS，数据结构与算法，数字电路，算法分析与设计 相关课程资料，之后会持续更新，欢迎任何人的贡献！
 
+课程 PPT 请前往附属仓库：[XJTUCS Course PPT](https://github.com/XJTUCS-HUB/Course_PPT)。
+
 ## 该项目的初衷
 
 该项目的创建是参考XJTUSE学长学姐的优秀项目[XJTUSE-GUIDE](https://github.com/Xjtuse-Guide/Xjtuse-Guide)。笔者大一时就读于软件工程专业，在很多专业课学习上参照着Guide上传授的经验去做，可以说是受益匪浅,指向性、观点性的分享节省了很多本可能浪费在信息检索与路径探索上的时间成本，而且软院的睡裙作为信息获取渠道的同时也让SE的同学能凝聚在一块。
