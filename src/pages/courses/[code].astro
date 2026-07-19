@@ -14,7 +14,7 @@ const resources = (await getCollection('resources', ({ data }) => data.course ==
   .sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title, 'zh-CN'));
 const credits = course.data.credits ? `${course.data.credits} 学分` : '学分待核对';
 
-// 课程级公共内容（overview / assessment / external）：内联渲染，不按作者分组。
+// 课程级公共内容（assessment / external）：内联渲染，不按作者分组。
 // 取本课程对应的 courseContent 条目，按 type 索引并预渲染正文组件。
 const contentEntries = (await getCollection('courseContent', ({ data }) => data.course === course.data.code));
 const contentByType = new Map();
@@ -28,7 +28,6 @@ const inlineSection = (type, title, eyebrow, empty) => {
   return { empty: false, title, eyebrow, Content: item.Content, updated: item.updated };
 };
 const inlineSections = [
-  { id: 'overview', ...inlineSection('overview', '课程介绍与学习目标', 'Overview', '课程覆盖范围、学习目标和内容边界将在核对后补充。') },
   { id: 'assessment', ...inlineSection('assessment', '考核信息', 'Assessment', '经核实的作业、实验和考核形式信息将在核对后补充。') },
   { id: 'external', ...inlineSection('external', '外部资源', 'External', '教材、公开课、课程团队网站和相关仓库。') },
 ];
@@ -39,7 +38,6 @@ const resourceGroups = [
   { id: 'past-resources', title: '往年资料', eyebrow: 'Past papers', types: ['past-paper'], empty: '允许公开且来源清楚的回忆内容或原始链接。' },
 ];
 const sections = [
-  ['overview', '课程介绍与学习目标'],
   ['assessment', '考核信息'],
   ['experience', '学习体验'],
   ['notes-review', '笔记与复习'],
