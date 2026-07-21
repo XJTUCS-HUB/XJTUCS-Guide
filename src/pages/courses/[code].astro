@@ -107,7 +107,7 @@ function groupByContributor(items) {
     </div>
     <aside class="course-toc" aria-label="本页目录">
       <p class="eyebrow">本页目录</p>
-      {sections.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
+      {sections.map(([id, label]) => <a href={`#${id}`} data-course-toc-link>{label}</a>)}
     </aside>
   </div>
 </BaseLayout>
@@ -129,7 +129,8 @@ function groupByContributor(items) {
   .course-content { display: block; padding-top: 34px; }
   .course-toc { position: sticky; top: 94px; align-self: start; display: grid; gap: 4px; font-size: .78rem; }
   .course-toc a { padding: 5px 8px; border-left: 2px solid var(--line); color: var(--muted); }
-  .course-toc a:hover { border-color: var(--brand); color: var(--ink); }
+  .course-toc a:hover, .course-toc a.active { border-color: var(--brand); color: var(--ink); }
+  .course-toc a.active { background: var(--brand-soft); }
   .resource-section { padding: 54px 0; border-top: 1px solid var(--ink); scroll-margin-top: 90px; }
   .section-title { display: flex; justify-content: space-between; align-items: end; margin-bottom: 24px; }
   .section-title h2 { margin: 3px 0 0; font-family: var(--serif); font-size: 2.2rem; font-weight: 500; }
@@ -169,3 +170,57 @@ function groupByContributor(items) {
   @media (max-width: 1050px) { .course-shell { grid-template-columns: minmax(0, 860px); justify-content: center; } .course-toc { display: none; } }
   @media (max-width: 680px) { h1 { font-size: 3.4rem; } .course-head { padding-block: 48px 38px; } dl { grid-template-columns: 1fr 1fr; gap: 18px 0; } dl div:nth-child(2) { border: 0; } dl div:nth-child(3) { padding-left: 0; } ol.resource-list > li > a, ol.sub-list > li > a { display: block; } ol.resource-list > li > a small, ol.sub-list > li > a small { display: block; margin-top: 3px; } }
 </style>
+
+<script>
+  const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-course-toc-link]')];
+  const tocItems: { link: HTMLAnchorElement; target: HTMLElement }[] = [];
+
+  tocLinks.forEach((link) => {
+    const href = link.getAttribute('href');
+    if (!href?.startsWith('#')) return;
+
+    const target = document.getElementById(decodeURIComponent(href.slice(1)));
+    if (target) tocItems.push({ link, target });
+  });
+
+  let tocFrame = 0;
+
+  const setActiveTocLink = (activeLink?: HTMLAnchorElement) => {
+    tocLinks.forEach((link) => {
+      const active = link === activeLink;
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+  };
+
+  const syncCourseToc = () => {
+    if (!tocItems.length) return;
+
+    const offset = 118;
+    let activeLink = tocItems[0].link;
+
+    for (const item of tocItems) {
+      if (item.target.getBoundingClientRect().top <= offset) {
+        activeLink = item.link;
+      } else {
+        break;
+      }
+    }
+
+    const nearPageBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    if (nearPageBottom) activeLink = tocItems[tocItems.length - 1].link;
+
+    setActiveTocLink(activeLink);
+  };
+
+  const queueCourseTocSync = () => {
+    window.cancelAnimationFrame(tocFrame);
+    tocFrame = window.requestAnimationFrame(syncCourseToc);
+  };
+
+  window.addEventListener('scroll', queueCourseTocSync, { passive: true });
+  window.addEventListener('resize', queueCourseTocSync);
+  window.addEventListener('hashchange', () => window.setTimeout(queueCourseTocSync, 0));
+  queueCourseTocSync();
+</script>
