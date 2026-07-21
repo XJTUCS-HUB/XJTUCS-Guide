@@ -7,4 +7,9 @@ dist/
 *-desktop.png
 *-mobile.png
 docs/plan/
+<<<<<<< HEAD
 GUIDEBOOKS/
+=======
+LOCAL_CHANGELOG.md
+LOCAL_GIT_GUIDE.md
+>>>>>>> refs/remotes/origin/main

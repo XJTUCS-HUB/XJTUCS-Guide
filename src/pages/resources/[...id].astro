@@ -12,6 +12,12 @@ const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 const course = (await getCollection('courses')).find(({ data }) => data.code === entry.data.course);
 const courseHref = course ? withBase(`/courses/${course.id}/`) : withBase('/courses/');
+const typeLabel: Record<string, { zh: string; en: string }> = {
+  notes: { zh: '笔记', en: 'Notes' },
+  experience: { zh: '体验', en: 'Experience' },
+  'past-paper': { zh: '往年题', en: 'Past paper' },
+};
+const label = typeLabel[entry.data.type] ?? { zh: '资料', en: 'Resource' };
 ---
 <BaseLayout title={`${entry.data.title} | XJTUCS Guide`}>
   <div class="container article-layout">
@@ -20,9 +26,9 @@ const courseHref = course ? withBase(`/courses/${course.id}/`) : withBase('/cour
       {headings.filter(({ depth }) => depth <= 2).slice(0, 12).map((heading) => <a href={`#${heading.slug}`}>{heading.text}</a>)}
     </aside>
     <article>
-      <nav class="breadcrumb" aria-label="面包屑"><a href={courseHref}>{course?.data.name ?? entry.data.course}</a><span>/</span><span>笔记</span></nav>
+      <nav class="breadcrumb" aria-label="面包屑"><a href={courseHref}>{course?.data.name ?? entry.data.course}</a><span>/</span><span>{label.zh}</span></nav>
       <header>
-        <p class="eyebrow">{entry.data.course} · Notes</p>
+        <p class="eyebrow">{entry.data.course} · {label.en}</p>
         <h1 class="serif">{entry.data.title}</h1>
         <dl><div><dt>作者</dt><dd>{entry.data.author}</dd></div><div><dt>更新时间</dt><dd>{entry.data.updated.toLocaleDateString('zh-CN')}</dd></div></dl>
       </header>

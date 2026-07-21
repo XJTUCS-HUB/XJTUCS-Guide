@@ -11,6 +11,7 @@
     "check": "pnpm run build"
   },
   "dependencies": {
+    "@fontsource/noto-serif-sc": "^5.2.9",
     "astro": "^5.12.3",
     "katex": "^0.16.11",
     "rehype-katex": "^7.0.1",

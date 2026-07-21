@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EmptySection from '../../components/EmptySection.astro';
 import { withBase } from '../../lib/paths';
@@ -12,41 +12,109 @@ export async function getStaticPaths() {
 const { course } = Astro.props;
 const resources = (await getCollection('resources', ({ data }) => data.course === course.data.code))
   .sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title, 'zh-CN'));
-const notes = resources.filter(({ data }) => data.type === 'notes');
 const credits = course.data.credits ? `${course.data.credits} 学分` : '学分待核对';
+
+// 课程级公共内容（assessment / external）：内联渲染，不按作者分组。
+// 取本课程对应的 courseContent 条目，按 type 索引并预渲染正文组件。
+const contentEntries = (await getCollection('courseContent', ({ data }) => data.course === course.data.code));
+const contentByType = new Map();
+for (const entry of contentEntries) {
+  const { Content } = await render(entry);
+  contentByType.set(entry.data.type, { Content, updated: entry.data.updated });
+}
+const inlineSection = (type, title, eyebrow, empty) => {
+  const item = contentByType.get(type);
+  if (!item) return { empty: true, title, eyebrow, empty };
+  return { empty: false, title, eyebrow, Content: item.Content, updated: item.updated };
+};
+const inlineSections = [
+  { id: 'assessment', ...inlineSection('assessment', '考核信息', 'Assessment', '经核实的作业、实验和考核形式信息将在核对后补充。') },
+  { id: 'external', ...inlineSection('external', '外部资源', 'External', '教材、公开课、课程团队网站和相关仓库。') },
+];
+
+const resourceGroups = [
+  { id: 'experience', title: '学习体验', eyebrow: 'Experience', types: ['experience'], empty: '带有适用学期与课程背景的个人学习记录。' },
+  { id: 'notes-review', title: '笔记与复习', eyebrow: 'Notes & review', types: ['notes'], empty: '课程笔记、复习提纲与知识整理。' },
+  { id: 'past-resources', title: '往年资料', eyebrow: 'Past papers', types: ['past-paper'], empty: '允许公开且来源清楚的回忆内容或原始链接。' },
+];
+const sections = [
+  ['assessment', '考核信息'],
+  ['experience', '学习体验'],
+  ['notes-review', '笔记与复习'],
+  ['past-resources', '往年资料'],
+  ['external', '外部资源'],
+];
+
+// 同一贡献者目录下有多篇资料时，收拢为可折叠分组，方便查看。
+// entry.id 形如 `{课程代码}/{贡献者目录}/{文件名}`，取第二段作为贡献者标识；
+// 不在贡献者子目录下的资源各自独立成组，不折叠。
+function groupByContributor(items) {
+  const groups = new Map();
+  for (const entry of items) {
+    const parts = entry.id.split('/');
+    const key = parts.length >= 3 ? parts[1] : `__single:${entry.id}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(entry);
+  }
+  return [...groups.values()];
+}
 ---
 <BaseLayout title={`${course.data.name} | XJTUCS Guide`}>
   <div class="container course-shell">
-    <nav class="breadcrumb" aria-label="面包屑"><a href={withBase('/courses/')}>课程</a><span>/</span><span>{course.data.name}</span></nav>
-    <header class="course-head">
-      <p class="eyebrow">{course.data.code}</p>
-      <h1 class="serif">{course.data.name}</h1>
-      <p>{course.data.summary}</p>
-      <dl>
-        <div><dt>类别</dt><dd>{course.data.category}</dd></div>
-        <div><dt>性质</dt><dd>{course.data.requirement === 'required' ? '专业必修' : '专业选修'}</dd></div>
-        <div><dt>学分</dt><dd>{credits}</dd></div>
-      </dl>
-    </header>
+    <div class="course-main">
+      <nav class="breadcrumb" aria-label="面包屑"><a href={withBase('/courses/')}>课程</a><span>/</span><span>{course.data.name}</span></nav>
+      <header class="course-head">
+        <p class="eyebrow">{course.data.code}</p>
+        <h1 class="serif">{course.data.name}</h1>
+        <p>{course.data.summary}</p>
+        <dl>
+          <div><dt>类别</dt><dd>{course.data.category}</dd></div>
+          <div><dt>性质</dt><dd>{course.data.requirement === 'required' ? '专业必修' : '专业选修'}</dd></div>
+          <div><dt>学分</dt><dd>{credits}</dd></div>
+        </dl>
+      </header>
 
-    <main class="course-content">
-      <EmptySection title="课程介绍与学习目标" description="课程覆盖范围、学习目标和内容边界将在核对后补充。" />
-      <EmptySection title="先修建议与相关课程" description="建议具备的知识基础和后续课程关系将在核对后补充。" />
-      <section class="resource-section">
-        <div class="section-title"><div><p class="eyebrow">Notes & review</p><h2>笔记与复习</h2></div><span>{notes.length} 篇</span></div>
-        {notes.length ? <ol>{notes.map((entry) => <li><a href={withBase(`/resources/${entry.id}/`)}><span>{entry.data.title}</span><small>戚剑飞 · {entry.data.updated.toLocaleDateString('zh-CN')}</small></a></li>)}</ol> : <p class="empty">暂无内容</p>}
-      </section>
-      <EmptySection title="实验经验" description="环境配置、调试方法、常见问题和实验复盘。" />
-      <EmptySection title="考核信息" description="经核实的作业、实验和考核形式信息。" />
-      <EmptySection title="学习体验" description="带有适用学期与课程背景的个人学习记录。" />
-      <EmptySection title="往年资料" description="允许公开且来源清楚的回忆内容或原始链接。" />
-      <EmptySection title="外部资源" description="教材、公开课、课程团队网站和相关仓库。" />
-    </main>
+      <main class="course-content">
+        {inlineSections.filter((item) => item.id !== 'external').map((item) => item.empty
+          ? <EmptySection id={item.id} title={item.title} description={item.empty} />
+          : <section class="resource-section inline-section" id={item.id}>
+              <div class="section-title"><div><p class="eyebrow">{item.eyebrow}</p><h2>{item.title}</h2></div>{item.updated && <span class="updated">更新于 {item.updated.toLocaleDateString('zh-CN')}</span>}</div>
+              <div class="prose inline-prose"><item.Content /></div>
+            </section>
+        )}
+        {resourceGroups.map((group) => {
+          const items = resources.filter(({ data }) => group.types.includes(data.type));
+          return items.length
+            ? <section class="resource-section" id={group.id}>
+                <div class="section-title"><div><p class="eyebrow">{group.eyebrow}</p><h2>{group.title}</h2></div><span>{items.length} 篇</span></div>
+                <ol class="resource-list">{groupByContributor(items).map((group) => group.length === 1
+                  ? <li><a href={withBase(`/resources/${group[0].id}/`)}><span>{group[0].data.title}</span><small>{group[0].data.author} · {group[0].data.updated.toLocaleDateString('zh-CN')}</small></a></li>
+                  : <li class="is-group"><details><summary><span class="group-head"><span class="group-name">{group[0].data.author}</span></span><small>{group.length} 篇</small></summary><ol class="sub-list">{group.map((entry) => <li><a href={withBase(`/resources/${entry.id}/`)}><span>{entry.data.title}</span><small>{entry.data.updated.toLocaleDateString('zh-CN')}</small></a></li>)}</ol></details></li>
+                )}</ol>
+              </section>
+            : <EmptySection id={group.id} title={group.title} description={group.empty} />;
+        })}
+        {(() => {
+          const item = inlineSections.find((i) => i.id === 'external');
+          return item && (item.empty
+            ? <EmptySection id={item.id} title={item.title} description={item.empty} />
+            : <section class="resource-section inline-section" id={item.id}>
+                <div class="section-title"><div><p class="eyebrow">{item.eyebrow}</p><h2>{item.title}</h2></div>{item.updated && <span class="updated">更新于 {item.updated.toLocaleDateString('zh-CN')}</span>}</div>
+                <div class="prose inline-prose"><item.Content /></div>
+              </section>);
+        })()}
+      </main>
+    </div>
+    <aside class="course-toc" aria-label="本页目录">
+      <p class="eyebrow">本页目录</p>
+      {sections.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
+    </aside>
   </div>
 </BaseLayout>
 
 <style>
-  .course-shell { max-width: 980px; padding-block: 34px 100px; }
+  .course-shell { max-width: var(--max); display: grid; grid-template-columns: minmax(0, 860px) 190px; justify-content: space-between; gap: 64px; padding-block: 34px 100px; }
+  .course-main { min-width: 0; }
   .breadcrumb { display: flex; gap: 10px; color: var(--muted); font-size: .8rem; }
   .breadcrumb a { color: var(--link); }
   .course-head { padding: 70px 0 54px; border-bottom: 1px solid var(--ink); }
@@ -59,16 +127,45 @@ const credits = course.data.credits ? `${course.data.credits} 学分` : '学分�
   dt { color: var(--muted); font-size: .72rem; }
   dd { margin: 2px 0 0; font-weight: 600; }
   .course-content { display: block; padding-top: 34px; }
-  .resource-section { padding: 54px 0; border-top: 1px solid var(--ink); }
+  .course-toc { position: sticky; top: 94px; align-self: start; display: grid; gap: 4px; font-size: .78rem; }
+  .course-toc a { padding: 5px 8px; border-left: 2px solid var(--line); color: var(--muted); }
+  .course-toc a:hover { border-color: var(--brand); color: var(--ink); }
+  .resource-section { padding: 54px 0; border-top: 1px solid var(--ink); scroll-margin-top: 90px; }
   .section-title { display: flex; justify-content: space-between; align-items: end; margin-bottom: 24px; }
   .section-title h2 { margin: 3px 0 0; font-family: var(--serif); font-size: 2.2rem; font-weight: 500; }
   .section-title > span { color: var(--muted); font-size: .8rem; }
-  ol { margin: 0; padding: 0; list-style: none; }
-  li { border-top: 1px solid var(--line); }
-  li:last-child { border-bottom: 1px solid var(--line); }
-  li a { min-height: 62px; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 10px 12px; transition: background 150ms var(--ease); }
-  li a:hover { background: var(--brand-soft); }
-  li small { flex: 0 0 auto; color: var(--muted); }
+  ol.resource-list, ol.sub-list { margin: 0; padding: 0; list-style: none; }
+  ol.resource-list > li { border-top: 1px solid var(--line); }
+  ol.resource-list > li:last-child { border-bottom: 1px solid var(--line); }
+  ol.resource-list > li > a { min-height: 62px; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 10px 12px; transition: background 150ms var(--ease); }
+  ol.resource-list > li > a:hover { background: var(--brand-soft); }
+  ol.resource-list > li > a small { flex: 0 0 auto; color: var(--muted); }
+  li.is-group > details > summary { min-height: 62px; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 10px 12px; cursor: pointer; list-style: none; transition: background 150ms var(--ease); }
+  li.is-group > details > summary::-webkit-details-marker { display: none; }
+  li.is-group > details > summary::marker { content: ''; }
+  .group-head { display: inline-flex; align-items: center; gap: 10px; }
+  .group-head::before { content: '▸'; color: var(--muted); transition: transform 150ms var(--ease); }
+  li.is-group > details[open] > summary .group-head::before { transform: rotate(90deg); }
+  li.is-group > details > summary:hover { background: var(--brand-soft); }
+  li.is-group > details > summary small { flex: 0 0 auto; color: var(--muted); }
+  ol.sub-list > li { border-top: 1px solid var(--line); }
+  ol.sub-list > li > a { min-height: 50px; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 8px 12px 8px 34px; transition: background 150ms var(--ease); }
+  ol.sub-list > li > a:hover { background: var(--brand-soft); }
+  ol.sub-list > li > a small { flex: 0 0 auto; color: var(--muted); }
   .empty { color: var(--faint); }
-  @media (max-width: 680px) { h1 { font-size: 3.4rem; } .course-head { padding-block: 48px 38px; } dl { grid-template-columns: 1fr 1fr; gap: 18px 0; } dl div:nth-child(2) { border: 0; } dl div:nth-child(3) { padding-left: 0; } li a { display: block; } li small { display: block; margin-top: 3px; } }
+  .section-title .updated { color: var(--muted); font-size: .8rem; }
+  .inline-prose { max-width: 680px; }
+  .inline-prose :global(h1), .inline-prose :global(h2), .inline-prose :global(h3), .inline-prose :global(h4) { scroll-margin-top: 90px; font-family: var(--serif); font-weight: 500; line-height: 1.25; }
+  .inline-prose :global(h1) { margin: 2em 0 .7em; font-size: 1.8rem; }
+  .inline-prose :global(h2) { margin: 1.8em 0 .6em; font-size: 1.4rem; }
+  .inline-prose :global(h3) { margin: 1.6em 0 .5em; font-size: 1.15rem; }
+  .inline-prose :global(p), .inline-prose :global(li) { line-height: 1.85; }
+  .inline-prose :global(a) { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+  .inline-prose :global(ul), .inline-prose :global(ol) { padding-left: 1.4em; }
+  .inline-prose :global(blockquote) { margin-inline: 0; padding: 6px 18px; border-left: 3px solid var(--brand); color: var(--muted); }
+  .inline-prose :global(code) { font-family: var(--mono); }
+  .inline-prose :global(:not(pre) > code) { padding: 2px 4px; background: var(--brand-soft); }
+  .inline-prose :global(pre) { max-width: 100%; overflow-x: auto; padding: 16px; border: 1px solid var(--line); background: var(--ink); color: var(--paper); font-size: .84rem; }
+  @media (max-width: 1050px) { .course-shell { grid-template-columns: minmax(0, 860px); justify-content: center; } .course-toc { display: none; } }
+  @media (max-width: 680px) { h1 { font-size: 3.4rem; } .course-head { padding-block: 48px 38px; } dl { grid-template-columns: 1fr 1fr; gap: 18px 0; } dl div:nth-child(2) { border: 0; } dl div:nth-child(3) { padding-left: 0; } ol.resource-list > li > a, ol.sub-list > li > a { display: block; } ol.resource-list > li > a small, ol.sub-list > li > a small { display: block; margin-top: 3px; } }
 </style>
