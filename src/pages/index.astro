@@ -1,14 +1,13 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CourseRow from '../components/CourseRow.astro';
 import { withBase } from '../lib/paths';
-const courses = [
-  ['COMP400727', '计算机系统导论', '4', '系统结构', '/courses/comp400727/'],
-  ['COMP400505', '数据结构与算法 I', '4', '专业基础', '/courses/comp400505/'],
-  ['EELC400105', '数字逻辑电路 I', '3.5', '专业基础', '/courses/eelc400105/'],
-  ['COMP450205', '操作系统原理 I', '3', '专业核心', '/courses/comp450205/'],
-  ['COMP462205', '算法分析与设计', '2.5', '专业核心', '/courses/comp462205/'],
-];
+const courses = (await getCollection('courses'))
+  .sort((a, b) => b.data.updated.getTime() - a.data.updated.getTime() || a.data.code.localeCompare(b.data.code, 'zh-CN'))
+  .slice(0, 5);
+const courseHref = (id: string) => withBase(`/courses/${id}/`);
+const creditsLabel = (credits?: number) => credits ?? '待核对';
 ---
 <BaseLayout>
   <section class="hero">
@@ -38,7 +37,7 @@ const courses = [
       <a href={withBase('/courses/')}>查看完整目录 →</a>
     </div>
     <div class="course-list">
-      {courses.map(([code, name, credits, category, href]) => <CourseRow code={code} name={name} credits={credits} category={category} href={withBase(href)} />)}
+      {courses.map((course) => <CourseRow code={course.data.code} name={course.data.name} credits={creditsLabel(course.data.credits)} category={course.data.category} requirement={course.data.requirement} href={courseHref(course.id)} />)}
     </div>
   </section>
 
