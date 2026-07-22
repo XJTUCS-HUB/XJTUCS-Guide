@@ -7,5 +7,6 @@ dist/
 *-desktop.png
 *-mobile.png
 docs/plan/
+GUIDEBOOKS/
 LOCAL_CHANGELOG.md
 LOCAL_GIT_GUIDE.md

@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EmptySection from '../../components/EmptySection.astro';
+import ScrollSpy from '../../components/ScrollSpy.astro';
 import { withBase } from '../../lib/paths';
 
 export async function getStaticPaths() {
@@ -107,9 +108,10 @@ function groupByContributor(items) {
     </div>
     <aside class="course-toc" aria-label="本页目录">
       <p class="eyebrow">本页目录</p>
-      {sections.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
+      {sections.map(([id, label]) => <a href={`#${id}`} data-scrollspy-link>{label}</a>)}
     </aside>
   </div>
+  <ScrollSpy />
 </BaseLayout>
 
 <style>
@@ -129,7 +131,7 @@ function groupByContributor(items) {
   .course-content { display: block; padding-top: 34px; }
   .course-toc { position: sticky; top: 94px; align-self: start; display: grid; gap: 4px; font-size: .78rem; }
   .course-toc a { padding: 5px 8px; border-left: 2px solid var(--line); color: var(--muted); }
-  .course-toc a:hover { border-color: var(--brand); color: var(--ink); }
+  .course-toc a:hover, .course-toc a.active { border-color: var(--brand); color: var(--ink); }
   .resource-section { padding: 54px 0; border-top: 1px solid var(--ink); scroll-margin-top: 90px; }
   .section-title { display: flex; justify-content: space-between; align-items: end; margin-bottom: 24px; }
   .section-title h2 { margin: 3px 0 0; font-family: var(--serif); font-size: 2.2rem; font-weight: 500; }

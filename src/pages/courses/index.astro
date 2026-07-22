@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CourseRow from '../../components/CourseRow.astro';
+import ScrollSpy from '../../components/ScrollSpy.astro';
 import { withBase } from '../../lib/paths';
 
 const groups = [
@@ -12,7 +13,7 @@ const courseHref = (code) => withBase(`/courses/${code.toLowerCase()}/`);
 ---
 <BaseLayout title="课程目录 · XJTUCS Guide">
   <div class="container catalog-layout">
-    <aside class="catalog-nav"><p class="eyebrow">课程目录</p><a class="active" href="#required-foundation" data-nav-link>专业基础</a><a href="#required-core" data-nav-link>专业核心</a><a href="#elective" data-nav-link>专业选修</a><hr /><small>按培养方案分类，不按学期组织</small></aside>
+    <aside class="catalog-nav"><p class="eyebrow">课程目录</p><a href="#required-foundation" data-nav-link data-scrollspy-link>专业基础</a><a href="#required-core" data-nav-link data-scrollspy-link>专业核心</a><a href="#elective" data-nav-link data-scrollspy-link>专业选修</a><hr /><small>按培养方案分类，不按学期组织</small></aside>
     <section>
       <div class="page-head"><p class="eyebrow">Course catalog</p><h1 class="serif">课程</h1><p>先选择课程，再查看对应的资料与学习体验。</p></div>
       <div class="catalog-search"><label for="course-type">课程类型</label><select id="course-type" aria-label="课程类型"><option value="all">全部类型</option><option value="required">专业必修</option><option value="elective">专业选修</option></select></div>
@@ -20,12 +21,13 @@ const courseHref = (code) => withBase(`/courses/${code.toLowerCase()}/`);
       <p class="no-results" hidden>没有匹配的课程，请尝试其他名称、代码或类型。</p>
     </section>
   </div>
+  <ScrollSpy />
 </BaseLayout>
 <style>
   .catalog-layout { display: grid; grid-template-columns: 190px 1fr; gap: 64px; padding-block: 64px 100px; }
   .catalog-nav { position: sticky; top: 96px; height: fit-content; display: grid; gap: 4px; }
   .catalog-nav a { min-height: 40px; display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-left: 2px solid transparent; }
-  .catalog-nav a.active { color: var(--ink); border-color: var(--brand); background: var(--brand-soft); }
+  .catalog-nav a:hover, .catalog-nav a.active { color: var(--ink); border-color: var(--brand); }
   .catalog-nav hr { width: 100%; border: 0; border-top: 1px solid var(--line); }
   .catalog-nav small { color: var(--muted); }
   .page-head { padding-bottom: 36px; }
@@ -34,7 +36,7 @@ const courseHref = (code) => withBase(`/courses/${code.toLowerCase()}/`);
   .catalog-search { min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 14px; border: 1px solid var(--line-strong); background: var(--surface); }
   .catalog-search label { color: var(--muted); font-size: .8rem; }
   .catalog-search select { height: 42px; border: 0; outline: 0; background: transparent; color: var(--ink); }
-  .group { padding-top: 54px; }
+  .group { padding-top: 54px; scroll-margin-top: 96px; }
   .group-title { display: flex; align-items: end; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
   .group-title h2 { margin: 0; font-size: 1.8rem; font-weight: 500; }
   .group-title span { color: var(--muted); font-size: .78rem; }
@@ -50,14 +52,11 @@ const courseHref = (code) => withBase(`/courses/${code.toLowerCase()}/`);
   const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
 
   const syncNav = () => {
-    const hashTarget = window.location.hash.replace('#', '');
-    const firstVisibleGroup = groups.find((group) => !group.hidden);
-    const activeId = groups.some((group) => group.id === hashTarget && !group.hidden) ? hashTarget : firstVisibleGroup?.id;
     navLinks.forEach((link) => {
       const targetId = link.getAttribute('href')?.replace('#', '');
-      link.classList.toggle('active', Boolean(targetId && activeId === targetId));
       if (targetId) link.hidden = !groups.some((group) => group.id === targetId && !group.hidden);
     });
+    window.dispatchEvent(new Event('scrollspy:update'));
   };
 
   const filterCourses = () => {

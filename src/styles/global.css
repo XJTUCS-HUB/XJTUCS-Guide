@@ -57,6 +57,7 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .serif { font-family: var(--serif); }
 .eyebrow { color: var(--brand); font-size: .74rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .muted { color: var(--muted); }
+[data-scrollspy-link].active { color: var(--ink); border-color: var(--brand); background: var(--brand-soft); }
 
 @media (max-width: 680px) {
   .container { width: min(calc(100% - 28px), var(--max)); }

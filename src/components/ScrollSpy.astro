@@ -1,0 +1,73 @@
+<script>
+  const scrollSpyLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-scrollspy-link]')];
+  let scrollSpyFrame = 0;
+
+  const decodeHash = (hash: string) => {
+    try {
+      return decodeURIComponent(hash);
+    } catch {
+      return hash;
+    }
+  };
+
+  const isVisible = (element: HTMLElement) => {
+    if (element.hidden || element.closest('[hidden]')) return false;
+    const style = window.getComputedStyle(element);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  };
+
+  const getScrollSpyItems = () => scrollSpyLinks
+    .map((link) => {
+      const href = link.getAttribute('href');
+      if (!href?.startsWith('#')) return null;
+      const target = document.getElementById(decodeHash(href.slice(1)));
+      return target ? { link, target } : null;
+    })
+    .filter((item): item is { link: HTMLAnchorElement; target: HTMLElement } => Boolean(item && isVisible(item.link) && isVisible(item.target)));
+
+  const setActiveScrollSpyLink = (activeLink?: HTMLAnchorElement) => {
+    scrollSpyLinks.forEach((link) => {
+      const active = link === activeLink;
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+  };
+
+  const syncScrollSpy = () => {
+    if (!scrollSpyLinks.length) return;
+
+    const items = getScrollSpyItems();
+    if (!items.length) {
+      setActiveScrollSpyLink();
+      return;
+    }
+
+    const offset = 118;
+    let activeLink = items[0].link;
+
+    for (const item of items) {
+      if (item.target.getBoundingClientRect().top <= offset) {
+        activeLink = item.link;
+      } else {
+        break;
+      }
+    }
+
+    const nearPageBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    if (nearPageBottom) activeLink = items[items.length - 1].link;
+
+    setActiveScrollSpyLink(activeLink);
+  };
+
+  const queueScrollSpySync = () => {
+    window.cancelAnimationFrame(scrollSpyFrame);
+    scrollSpyFrame = window.requestAnimationFrame(syncScrollSpy);
+  };
+
+  window.addEventListener('scroll', queueScrollSpySync, { passive: true });
+  window.addEventListener('resize', queueScrollSpySync);
+  window.addEventListener('hashchange', () => window.setTimeout(queueScrollSpySync, 0));
+  window.addEventListener('scrollspy:update', queueScrollSpySync);
+  queueScrollSpySync();
+</script>

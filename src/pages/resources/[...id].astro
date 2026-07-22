@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ScrollSpy from '../../components/ScrollSpy.astro';
 import { withBase } from '../../lib/paths';
 
 export async function getStaticPaths() {
@@ -23,7 +24,7 @@ const label = typeLabel[entry.data.type] ?? { zh: '资料', en: 'Resource' };
   <div class="container article-layout">
     <aside class="toc">
       <p class="eyebrow">本页目录</p>
-      {headings.filter(({ depth }) => depth <= 2).slice(0, 12).map((heading) => <a href={`#${heading.slug}`}>{heading.text}</a>)}
+      {headings.filter(({ depth }) => depth <= 2).slice(0, 12).map((heading) => <a href={`#${heading.slug}`} data-scrollspy-link>{heading.text}</a>)}
     </aside>
     <article>
       <nav class="breadcrumb" aria-label="面包屑"><a href={courseHref}>{course?.data.name ?? entry.data.course}</a><span>/</span><span>{label.zh}</span></nav>
@@ -36,13 +37,14 @@ const label = typeLabel[entry.data.type] ?? { zh: '资料', en: 'Resource' };
     </article>
     <aside class="meta"><p class="eyebrow">页面信息</p><p>发现内容有误或已经过时？</p><a href="https://github.com/XJTUCS-HUB/XJTUCS-Guide/issues">报告问题</a><hr /><small>本站为学生维护的非官方资料站。</small></aside>
   </div>
+  <ScrollSpy />
 </BaseLayout>
 
 <style>
   .article-layout { display: grid; grid-template-columns: 170px minmax(0, 720px) 170px; justify-content: space-between; gap: 44px; padding-block: 42px 110px; }
   .toc, .meta { position: sticky; top: 94px; align-self: start; display: grid; gap: 4px; font-size: .78rem; }
   .toc a { padding: 5px 8px; border-left: 2px solid var(--line); color: var(--muted); }
-  .toc a:hover { border-color: var(--brand); color: var(--ink); }
+  .toc a:hover, .toc a.active { border-color: var(--brand); color: var(--ink); }
   .meta p { margin: 0 0 4px; color: var(--muted); }
   .meta a { color: var(--link); }
   .meta hr { width: 100%; border: 0; border-top: 1px solid var(--line); }
