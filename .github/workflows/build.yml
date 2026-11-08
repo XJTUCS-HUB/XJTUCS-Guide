@@ -21,4 +21,9 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
+      - name: Test repository policy
+        run: pnpm run policy:test
+      - name: Check repository policy
+        run: pnpm run policy:check
+      - name: Check and build Astro
+        run: pnpm run check

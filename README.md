@@ -2,9 +2,11 @@
 
 由西安交通大学计算机专业学生维护的非官方课程资料站，整理课程信息、学习资料和真实的修课经验。本项目已部署到[Github Pages](https://xjtucs-hub.github.io/XJTUCS-Guide/)，可以在线浏览。
 
-> 目前已更新 ICS，数据结构与算法，数字电路，算法分析与设计 相关课程资料，之后会持续更新，欢迎任何人的贡献！
+> 目前已更新 大二计算机专业课和少量大三计算机专业课 相关课程资料，之后会持续更新，欢迎任何人的贡献！
 
 课程 PPT 请前往附属仓库：[XJTUCS Course PPT](https://github.com/XJTUCS-HUB/Course_PPT)。
+
+> (20260727凌晨更新) Pull Request 内容格式检查bot上线，请[关注公告](../main/docs/announcements/danger-bot-launch.md)，[for developers](../main/docs/maintainers/pr-rulesets.md)。
 
 ## 该项目的初衷
 
@@ -51,6 +53,17 @@ docs/templates/            投稿示例与 Markdown 模板
 - [隐私说明](PRIVACY.md)
 - [投诉与下架](TAKEDOWN.md)
 - [安全政策](SECURITY.md)
+- [内容格式检查](danger-review.md)
+
+### 特别说明
+
+使用 Git 的贡献者请特别关注[内容格式检查](danger-review.md)中的内容。当你在提交PR后，本项目部署的bot会针对你提交的内容格式进行检查，并作评论。请你关注评论中关于`FAIL`和`WARN`的条目，并对应修正。
+
+其中，`FAIL`会导致检查失败并阻止合并，`WARN`不会阻止合并，但请尽量修正或在PR中说明原因。收到检查结果后，不论是`FAIL`还是`WARN`，都请直接在原PR对应的分支上继续提交，不需要关闭或重新创建PR。
+
+新的提交会触发bot重新检查并更新原评论。GitHub页面有时不会立即显示更新结果；请先等待`PR Policy / danger`运行完成，再刷新PR页面查看。
+
+同时，bot不审核内容真实性、版权、隐私或泄题风险，repo管理员也会根据生成的评论选择是否合并你的PR。
 
 ## 许可证
 

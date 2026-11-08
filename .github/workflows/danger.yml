@@ -1,0 +1,40 @@
+name: PR Policy
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: danger-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  danger:
+    name: danger
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      # pull_request_target 拥有写 PR 评论的权限。这里只检出受信任的 base
+      # commit，绝不能改为检出 pull_request.head.sha。
+      - name: Checkout trusted policy code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install trusted dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Review pull request
+        run: pnpm run danger
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

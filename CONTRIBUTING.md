@@ -25,8 +25,14 @@ pnpm run dev
 提交前运行：
 
 ```bash
-CI=true pnpm run build
+pnpm run policy:test
+pnpm run policy:check
+pnpm run check
 ```
+
+Pull Request 会由 Danger.js 自动检查目录、Frontmatter、课程引用和 PDF 配对。检查结果和常见修复方法见 [Danger.js PR 审查使用说明](danger-review.md)。
+
+收到 `FAIL` 或 `WARN` 后，请直接修改原分支并继续 push；不需要关闭或重新创建 Pull Request。bot 会在新提交后更新原评论。若页面仍显示旧结果，请等待 `PR Policy / danger` 运行完成后刷新页面。
 
 ## 新增课程资料
 
@@ -36,7 +42,7 @@ CI=true pnpm run build
 4. 正文只放自己原创或明确获得授权的内容。
 5. 图片优先使用稳定的 HTTPS 地址，不提交大体积附件。
 
-贡献者目录建议使用稳定的拼音或英文标识，例如 `WangEr`。具体写法可参考 [笔记编写指南](docs/templates/note-writing-guide.md)。**目录名必须全小写**——Astro 会把目录名用作 URL 并自动小写，若源目录含大写字母，资源页路径与 PDF 等资产路径的大小写会不一致，部署到大小写敏感的服务器（如 Linux）时会 404。
+贡献者目录建议使用稳定的全小写拼音或英文标识，例如 `wanger`。具体写法可参考 [笔记编写指南](docs/templates/note-writing-guide.md)。**目录名必须全小写**——Astro 会把目录名用作 URL 并自动小写，若源目录含大写字母，资源页路径与 PDF 等资产路径的大小写会不一致，部署到大小写敏感的服务器（如 Linux）时会 404。
 
 转载或无特定作者的公共往年资料（例如收集来的扫描试卷）统一放在 `public` 目录下，`author` 填 `Public`：
 
@@ -173,8 +179,8 @@ src/content/resources/comp400505/wangweiyi/学习体验.md
 贡献者目录建议使用稳定的拼音或英文标识，例如：
 
 ```text
-PeterGriffin
-StewieGriffin
+petergriffin
+stewiegriffin
 ```
 
 课程资料会生成独立资源页，并在课程详情页中按类型聚合展示。同一贡献者目录下有多篇资料时，课程页会按贡献者折叠分组。贡献者不必担心。
@@ -276,7 +282,7 @@ Issue 表单中可能出现“实验经验、课程介绍”等更宽泛的选�
 新建文件：
 
 ```text
-src/content/resources/comp400505/Peter/学习体验.md
+src/content/resources/comp400505/peter/学习体验.md
 ```
 
 Frontmatter：
@@ -342,7 +348,7 @@ updated: 2026-07-21
 新建文件：
 
 ```text
-src/content/resources/eelc400105/Stewie/2026年期末试题回忆.md
+src/content/resources/eelc400105/stewie/2026年期末试题回忆.md
 ```
 
 Frontmatter：

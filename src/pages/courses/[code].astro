@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EmptySection from '../../components/EmptySection.astro';
 import ScrollSpy from '../../components/ScrollSpy.astro';
@@ -19,22 +19,30 @@ const credits = course.data.credits ? `${course.data.credits} 学分` : '学分�
 // 课程级公共内容（assessment / external）：内联渲染，不按作者分组。
 // 取本课程对应的 courseContent 条目，按 type 索引并预渲染正文组件。
 const contentEntries = (await getCollection('courseContent', ({ data }) => data.course === course.data.code));
-const contentByType = new Map();
+type ResourceEntry = CollectionEntry<'resources'>;
+type ResourceType = ResourceEntry['data']['type'];
+const contentByType = new Map<string, { Content: any; updated: Date }>();
 for (const entry of contentEntries) {
   const { Content } = await render(entry);
   contentByType.set(entry.data.type, { Content, updated: entry.data.updated });
 }
-const inlineSection = (type, title, eyebrow, empty) => {
+const inlineSection = (type: string, title: string, eyebrow: string, emptyDescription: string) => {
   const item = contentByType.get(type);
-  if (!item) return { empty: true, title, eyebrow, empty };
-  return { empty: false, title, eyebrow, Content: item.Content, updated: item.updated };
+  if (!item) return { isEmpty: true as const, title, eyebrow, description: emptyDescription };
+  return { isEmpty: false as const, title, eyebrow, Content: item.Content, updated: item.updated };
 };
 const inlineSections = [
   { id: 'assessment', ...inlineSection('assessment', '考核信息', 'Assessment', '经核实的作业、实验和考核形式信息将在核对后补充。') },
   { id: 'external', ...inlineSection('external', '外部资源', 'External', '教材、公开课、课程团队网站和相关仓库。') },
 ];
 
-const resourceGroups = [
+const resourceGroups: Array<{
+  id: string;
+  title: string;
+  eyebrow: string;
+  types: ResourceType[];
+  empty: string;
+}> = [
   { id: 'experience', title: '学习体验', eyebrow: 'Experience', types: ['experience'], empty: '带有适用学期与课程背景的个人学习记录。' },
   { id: 'notes-review', title: '笔记与复习', eyebrow: 'Notes & review', types: ['notes'], empty: '课程笔记、复习提纲与知识整理。' },
   { id: 'past-resources', title: '往年资料', eyebrow: 'Past papers', types: ['past-paper'], empty: '允许公开且来源清楚的回忆内容或原始链接。' },
@@ -50,13 +58,14 @@ const sections = [
 // 同一贡献者目录下有多篇资料时，收拢为可折叠分组，方便查看。
 // entry.id 形如 `{课程代码}/{贡献者目录}/{文件名}`，取第二段作为贡献者标识；
 // 不在贡献者子目录下的资源各自独立成组，不折叠。
-function groupByContributor(items) {
-  const groups = new Map();
+function groupByContributor(items: ResourceEntry[]) {
+  const groups = new Map<string, ResourceEntry[]>();
   for (const entry of items) {
     const parts = entry.id.split('/');
     const key = parts.length >= 3 ? parts[1] : `__single:${entry.id}`;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(entry);
+    const group = groups.get(key);
+    if (group) group.push(entry);
+    else groups.set(key, [entry]);
   }
   return [...groups.values()];
 }
@@ -77,8 +86,8 @@ function groupByContributor(items) {
       </header>
 
       <main class="course-content">
-        {inlineSections.filter((item) => item.id !== 'external').map((item) => item.empty
-          ? <EmptySection id={item.id} title={item.title} description={item.empty} />
+        {inlineSections.filter((item) => item.id !== 'external').map((item) => item.isEmpty
+          ? <EmptySection id={item.id} title={item.title} description={item.description} />
           : <section class="resource-section inline-section" id={item.id}>
               <div class="section-title"><div><p class="eyebrow">{item.eyebrow}</p><h2>{item.title}</h2></div>{item.updated && <span class="updated">更新于 {item.updated.toLocaleDateString('zh-CN')}</span>}</div>
               <div class="prose inline-prose"><item.Content /></div>
@@ -98,8 +107,8 @@ function groupByContributor(items) {
         })}
         {(() => {
           const item = inlineSections.find((i) => i.id === 'external');
-          return item && (item.empty
-            ? <EmptySection id={item.id} title={item.title} description={item.empty} />
+          return item && (item.isEmpty
+            ? <EmptySection id={item.id} title={item.title} description={item.description} />
             : <section class="resource-section inline-section" id={item.id}>
                 <div class="section-title"><div><p class="eyebrow">{item.eyebrow}</p><h2>{item.title}</h2></div>{item.updated && <span class="updated">更新于 {item.updated.toLocaleDateString('zh-CN')}</span>}</div>
                 <div class="prose inline-prose"><item.Content /></div>

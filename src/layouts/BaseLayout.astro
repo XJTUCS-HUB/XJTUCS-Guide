@@ -54,7 +54,7 @@ const { title = 'XJTUCS Guide', description = '西安交通大学计算机专业
     <script>
       const panel = document.querySelector('[data-tweaks]');
       const toggle = document.querySelector('[data-tweaks-toggle]');
-      const setPanel = (open) => { if (panel instanceof HTMLElement) panel.hidden = !open; toggle?.setAttribute('aria-expanded', String(open)); };
+      const setPanel = (open: boolean) => { if (panel instanceof HTMLElement) panel.hidden = !open; toggle?.setAttribute('aria-expanded', String(open)); };
       toggle?.addEventListener('click', () => setPanel(panel?.hasAttribute('hidden') ?? true));
       document.querySelector('[data-tweaks-close]')?.addEventListener('click', () => setPanel(false));
       document.querySelector('[data-density]')?.addEventListener('change', (event) => { if (event.target instanceof HTMLSelectElement) document.documentElement.dataset.variant = event.target.value; });

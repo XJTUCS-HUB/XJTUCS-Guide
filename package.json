@@ -8,7 +8,10 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check && astro build"
+    "check": "astro check && astro build",
+    "danger": "danger ci",
+    "policy:check": "node scripts/pr-policy/cli.mjs",
+    "policy:test": "node --test scripts/pr-policy/__tests__/*.test.mjs"
   },
   "dependencies": {
     "@fontsource/noto-serif-sc": "^5.2.9",
@@ -19,6 +22,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
-    "typescript": "^7.0.2"
+    "@types/node": "^22.20.1",
+    "danger": "^13.0.10",
+    "typescript": "^5.9.3",
+    "yaml": "^2.9.0"
   }
 }
