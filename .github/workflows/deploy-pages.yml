@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   build-and-deploy:
+    # 仅在组织仓库部署；fork 未启用 Pages，无守卫会导致每次 push 都失败。
+    if: github.repository == 'XJTUCS-HUB/XJTUCS-Guide'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
